@@ -1,0 +1,21 @@
+.auth-form{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 20px;
+}
+.auth-form > div{
+    display: flex;
+    gap: 10px ;
+}
+.registration-inputs{
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+button {
+
+    max-width: 100px;
+}

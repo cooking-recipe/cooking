@@ -82,7 +82,12 @@ export const useAuth = () => {
       setLoading(false);
     }
   };
-
+  function signOut() {
+    const { data, error } = supabase.auth.signOut()
+    navigate('/')
+    if (error) { throw error}
+  }
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -102,7 +107,8 @@ export const useAuth = () => {
     isLogin,
     loading,
     error,
-      formData,
+    formData,
+      signOut,
     // navigate,
     handleChange,
     handleSubmit,

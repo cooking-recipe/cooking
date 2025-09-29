@@ -16,7 +16,7 @@ export default function CreateRecipe() {
     calories: '',
     weight: '',
     servings: '',
-    images: []
+    images: []//для файлов
   });
 
   const navigate = useNavigate();
@@ -90,8 +90,10 @@ export default function CreateRecipe() {
 
   // Загрузка изображений
   const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files);
-    
+    const files = Array.from(e.target.files); //Array.from создает массив из чего-либо
+    // const files = [...e.target.files]; // То же самое, что Array.from
+    // console.log(files.map(f=> f.size))
+    // console.log(e.target.files)
     if (files.length + formData.images.length > 3) {
       alert('Можно загрузить не более 3 изображений');
       return;
@@ -101,7 +103,7 @@ export default function CreateRecipe() {
     const previews = files.map(file => URL.createObjectURL(file));
     setImagePreviews(prev => [...prev, ...previews]);
 
-    // Сохраняем файлы
+    //добавление файла в массив
     setFormData(prev => ({
       ...prev,
       images: [...prev.images, ...files]
@@ -123,20 +125,20 @@ export default function CreateRecipe() {
 
     for (let i = 0; i < formData.images.length; i++) {
       const file = formData.images[i];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${recipeId}/${Math.random()}.${fileExt}`;
-
+      const ext = file.name.split('.').pop().toLowerCase(); //расширение картинки 
+      const uniqueId = crypto.randomUUID();
+      const fileName = `${recipeId}/${uniqueId}.${ext}`;
       const { error: uploadError } = await supabase.storage
         .from('recipe-images')
         .upload(fileName, file);
 
       if (uploadError) {
-        console.error('Error uploading image:', uploadError);
+        console.error('ошибка загрузки изображения:', uploadError);
         continue;
       }
 
-      // Получаем публичный URL
-      const { data } = supabase.storage
+      // Получение URL
+      const { data } = await supabase.storage
         .from('recipe-images')
         .getPublicUrl(fileName);
 
@@ -152,23 +154,8 @@ export default function CreateRecipe() {
     setLoading(true);
 
     try {
-      // Валидация обязательных полей
-      if (!formData.title.trim()) {
-        throw new Error('Название рецепта обязательно');
-      }
-
-      const validIngredients = formData.ingredients.filter(ing => ing.trim() !== '');
-      if (validIngredients.length === 0) {
-        throw new Error('Добавьте хотя бы один ингредиент');
-      }
-
-      const validSteps = formData.steps.filter(step => step.trim() !== '');
-      if (validSteps.length === 0) {
-        throw new Error('Добавьте хотя бы один шаг приготовления');
-      }
-
-      // Получаем текущего пользователя
-      const { data: { user } } = await supabase.auth.getUser();
+ 
+      const { data: { user } } = await supabase.auth.getUser(); // Получение текущего пользователя
       if (!user) {
         throw new Error('Пользователь не авторизован');
       }
@@ -193,7 +180,7 @@ export default function CreateRecipe() {
 
       if (recipeError) throw recipeError;
 
-      // Загружаем изображения, если они есть
+      // Загрузка изображения (если оно есть)
       let imageUrls = [];
       if (formData.images.length > 0) {
         imageUrls = await uploadImages(recipe.id);
@@ -211,7 +198,6 @@ export default function CreateRecipe() {
       navigate('/recipes'); // Переход к списку рецептов
 
     } catch (error) {
-      console.error('Error creating recipe:', error);
       alert(error.message);
     } finally {
       setLoading(false);

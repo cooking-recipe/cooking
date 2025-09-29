@@ -7,6 +7,7 @@ export default function Auth() {
     loading,
     error,
     formData,
+    signOut,
     // navigate,
     handleChange,
     handleSubmit,
@@ -16,6 +17,7 @@ export default function Auth() {
 
   return (
     <div className="auth-container">
+      <button onClick={signOut}>exit</button>
       <h2>{isLogin ? 'Вход' : 'Регистрация'}</h2>
       <form onSubmit={handleSubmit} className='auth-form'>
         
